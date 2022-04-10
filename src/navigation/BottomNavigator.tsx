@@ -7,13 +7,15 @@ import HomeSubScreen from '../screens/HomeSubScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import ActivityScreen from '../screens/ActivityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import { StyleSheet } from 'react-native';
 import UploadScreen from '../screens/UploadScreen';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ExploreStack = createStackNavigator();
 const ActivityStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+const UploadStack = createStackNavigator();
 
 const HomeStackScreens = () => (
   <HomeStack.Navigator
@@ -49,10 +51,12 @@ const ProfileStackScreens = () => (
   </ProfileStack.Navigator>
 );
 
-const CustomButton = ({ children, onPress }) => (
-  <TouchableOpacity style={[styles.plus, styles.shadow]} onPress={onPress}>
-    <View style={{ width: 70, height: 70 }}>{children}</View>
-  </TouchableOpacity>
+const UploadStackScreens = () => (
+  <UploadStack.Navigator
+    screenOptions={{ headerShown: false }}
+    detachInactiveScreens={false}>
+    <UploadStack.Screen name="UploadScreen" component={UploadScreen} />
+  </UploadStack.Navigator>
 );
 
 const TabNavigator = () => {
@@ -60,8 +64,8 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: 'green',
-        tabBarStyle: [styles.container, styles.shadow, null],
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarStyle: styles.container,
+        tabBarIcon: ({ focused }) => {
           let iconName = 'home-outline';
 
           if (route.name === 'Home') {
@@ -72,6 +76,8 @@ const TabNavigator = () => {
             iconName = focused ? 'bell' : 'bell-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'account' : 'account-outline';
+          } else {
+            iconName = 'plus';
           }
 
           return <Icon name={iconName} size={20} color="red" />;
@@ -79,24 +85,12 @@ const TabNavigator = () => {
       })}>
       <Tab.Screen name="Explore" component={ExploreStackScreens} />
       <Tab.Screen name="Home" component={HomeStackScreens} />
-      <Tab.Screen
-        name="Upload"
-        component={UploadScreen}
-        // screenOptions={{
-        //   tabBarIcon: () => <Icon name="plus" size={30} color="blue" />,
-        // }}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="plus" size={30} color="violet" />
-          ),
-          tabBarButton: props => <CustomButton {...props} />,
-        }}
-      />
+      <Tab.Screen name="Upload" component={UploadStackScreens} />
       <Tab.Screen name="Activity" component={ActivityStackScreens} />
       <Tab.Screen
         name="Profile"
         component={ProfileStackScreens}
-        listeners={({ navigation, route }) => ({
+        listeners={({ navigation }) => ({
           tabPress: e => {
             // Prevent default action
             e.preventDefault();
@@ -120,18 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     height: 90,
   },
-  shadow: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
   plus: {
-    top: -30,
     justifyContent: 'center',
     alignItems: 'center',
   },
