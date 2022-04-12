@@ -1,15 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Dimensions,
-  Text,
-} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import Video from 'react-native-video';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import VideoControls from './VideoControls';
 
-const { width } = Dimensions.get('screen');
+const { width } = Dimensions.get('window');
 
 interface Props {
   postData: any;
@@ -25,18 +19,21 @@ const PostContent: React.FC<Props> = ({
   setMuteAll,
 }) => {
   const [progress, setProgress] = useState<string>('');
+  const [timeProgress, setTimeProgress] = useState<number>(0);
+  const [isVideoPaused, setIsVideoPaused] = useState<boolean>(isPaused);
+  const [displayControl, setDisplayControl] = useState<boolean>(false);
 
   const videoRef = useRef(null);
 
-  //   useEffect(() => {
-  //     handleMute();
-  //   }, [muteAll]);
+  useEffect(() => {
+    setIsVideoPaused(isPaused);
+  }, [isPaused]);
 
   // const handleMute = () => {
   //     videoRef?.current?.
   // }
   const calProgressTime = (time: number) => {
-    const minute = Math.ceil(time / 60);
+    const minute = Math.floor(time / 60);
     const second = Math.ceil(time) % 60;
     setProgress(`${minute}:${second < 10 ? `0${second}` : second}`);
   };
@@ -52,22 +49,29 @@ const PostContent: React.FC<Props> = ({
           style={styles.video}
           resizeMode="cover"
           muted={muteAll}
-          paused={isPaused}
+          paused={isVideoPaused}
           repeat={true}
           progressUpdateInterval={1000}
           onProgress={data => {
             calProgressTime(data.playableDuration - data.currentTime);
+            setTimeProgress(data.currentTime / data.playableDuration);
           }}
+          onReadyForDisplay={() => setDisplayControl(true)}
         />
         <View style={styles.progress}>
           <Text style={styles.progressText}>{progress}</Text>
         </View>
-
-        <TouchableOpacity
-          style={styles.muteIcon}
-          onPress={() => setMuteAll(prev => !prev)}>
-          <Icon name={muteAll ? 'volume-off' : 'volume-high'} size={24} />
-        </TouchableOpacity>
+        <View style={styles.controlBar}>
+          {displayControl && (
+            <VideoControls
+              progress={timeProgress}
+              isMuted={muteAll}
+              onMutePress={() => setMuteAll(prev => !prev)}
+              isPaused={isVideoPaused}
+              onPlayPress={() => setIsVideoPaused(prev => !prev)}
+            />
+          )}
+        </View>
       </View>
     </View>
   );
@@ -86,11 +90,6 @@ const styles = StyleSheet.create({
     width,
     aspectRatio: 1,
   },
-  muteIcon: {
-    position: 'absolute',
-    bottom: 5,
-    right: 5,
-  },
   progress: {
     position: 'absolute',
     top: 5,
@@ -98,5 +97,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     color: 'white',
+  },
+
+  controlBar: {
+    position: 'absolute',
+    bottom: 10,
+    width,
+    paddingHorizontal: 15,
   },
 });
