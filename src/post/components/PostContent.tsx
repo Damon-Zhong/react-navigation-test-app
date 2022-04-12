@@ -69,6 +69,10 @@ const PostContent: React.FC<Props> = ({
               onMutePress={() => setMuteAll(prev => !prev)}
               isPaused={isVideoPaused}
               onPlayPress={() => setIsVideoPaused(prev => !prev)}
+              onFullScreenPress={() => {
+                console.log('enter full screen');
+                videoRef?.current?.presentFullscreenPlayer();
+              }}
             />
           )}
         </View>

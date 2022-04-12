@@ -14,6 +14,7 @@ interface Props {
   isMuted: boolean;
   onPlayPress: () => void;
   onMutePress: () => void;
+  onFullScreenPress?: () => void;
 }
 
 const { width } = Dimensions.get('window');
@@ -24,6 +25,7 @@ const VideoControls: React.FC<Props> = ({
   onPlayPress,
   isMuted,
   onMutePress,
+  onFullScreenPress,
 }) => {
   const [progressWidth, setProgressWidth] = useState(
     new Animated.Value(progress * width * 0.6),
@@ -43,6 +45,13 @@ const VideoControls: React.FC<Props> = ({
         <Animated.View style={{ ...styles.fill, width: progressWidth }} />
       </View>
 
+      {onFullScreenPress && (
+        <TouchableOpacity
+          style={styles.controlIcon}
+          onPress={onFullScreenPress}>
+          <Icon name="fullscreen" size={24} color="white" />
+        </TouchableOpacity>
+      )}
       <TouchableOpacity style={styles.controlIcon} onPress={onMutePress}>
         <Icon
           name={isMuted ? 'volume-off' : 'volume-high'}
